@@ -1,48 +1,49 @@
 "use client";
 
-import { createContext, useContext, useState, useCallback, ReactNode } from "react";
+import { createContext, useContext, useState, ReactNode, useEffect } from "react";
 import { Package } from "./types";
-import { mockPackages } from "./mock-data";
+import { getPackages } from "@/app/actions/tracking";
 
 interface PackageContextType {
   packages: Package[];
   setPackages: (packages: Package[]) => void;
-  upsertPackages: (incoming: Package[]) => void;
+  isLoading: boolean;
+  refreshPackages: () => Promise<void>;
 }
 
 const PackageContext = createContext<PackageContextType | undefined>(undefined);
 
-export function PackageProvider({ children }: { children: ReactNode }) {
-  const [packages, setPackages] = useState<Package[]>(mockPackages);
+export function PackageProvider({ 
+  children,
+  initialData = []
+}: { 
+  children: ReactNode,
+  initialData?: Package[] 
+}) {
+  const [packages, setPackages] = useState<Package[]>(initialData);
+  const [isLoading, setIsLoading] = useState(initialData.length === 0);
 
-  const upsertPackages = useCallback((incoming: Package[]) => {
-    setPackages((prev) => {
-      const updated = [...prev];
-      for (const pkg of incoming) {
-        const existingIdx = updated.findIndex(
-          (p) =>
-            p.tracking_code === pkg.tracking_code &&
-            p.last_update === pkg.last_update
-        );
-        if (existingIdx >= 0) {
-          updated[existingIdx] = { ...updated[existingIdx], ...pkg };
-        } else {
-          const sameTracking = updated.find(
-            (p) => p.tracking_code === pkg.tracking_code
-          );
-          updated.push({
-            ...pkg,
-            id: String(Date.now() + Math.random()),
-            order_id: sameTracking?.order_id || pkg.order_id,
-          });
-        }
-      }
-      return updated;
-    });
-  }, []);
+  const refreshPackages = async () => {
+    setIsLoading(true);
+    try {
+      const liveData = await getPackages();
+      setPackages(liveData);
+    } catch (err) {
+      console.error("Failed to refresh packages:", err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Se não vier dados iniciais (Server Side Render), a gente tenta buscar.
+  useEffect(() => {
+    if (packages.length === 0) {
+      refreshPackages();
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
-    <PackageContext.Provider value={{ packages, setPackages, upsertPackages }}>
+    <PackageContext.Provider value={{ packages, setPackages, isLoading, refreshPackages }}>
       {children}
     </PackageContext.Provider>
   );

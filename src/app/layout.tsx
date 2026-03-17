@@ -20,17 +20,22 @@ export const metadata: Metadata = {
     "Sistema de gestão e rastreamento logístico com monitoramento de pacotes em tempo real",
 };
 
-export default function RootLayout({
+import { getPackages } from "@/app/actions/tracking";
+
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // Pre-fetch no lado do servidor para UI mais rápida
+  const initialPackages = await getPackages();
+
   return (
     <html lang="pt-BR">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <PackageProvider>
+        <PackageProvider initialData={initialPackages}>
           <Sidebar />
           <main className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 lg:pl-64">
             <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">

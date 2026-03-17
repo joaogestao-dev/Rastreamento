@@ -66,13 +66,13 @@ function renderCustomLabel({ cx, cy, midAngle, innerRadius, outerRadius, percent
 
 export function StatusBarChart({ data }: StatusChartProps) {
   return (
-    <Card className="border-white/20 bg-white/80 shadow-sm backdrop-blur-md">
+    <Card className="border-zinc-200/60 bg-white/70 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.03)] backdrop-blur-xl">
       <CardHeader className="pb-2">
         <div className="flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-slate-100">
-            <BarChart3 className="h-4 w-4 text-slate-600" />
+          <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-zinc-100">
+            <BarChart3 className="h-4 w-4 text-zinc-600" />
           </div>
-          <CardTitle className="text-sm font-semibold text-slate-900">
+          <CardTitle className="text-sm font-semibold text-zinc-900">
             Distribuição por Status
           </CardTitle>
         </div>
@@ -81,21 +81,29 @@ export function StatusBarChart({ data }: StatusChartProps) {
         <div className="h-[300px] w-full">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={data} margin={{ top: 8, right: 8, left: -16, bottom: 40 }} barSize={32}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
+              <defs>
+                {data.map((entry, index) => (
+                  <linearGradient key={`grad-${index}`} id={`colorUv-${index}`} x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor={entry.fill} stopOpacity={1}/>
+                    <stop offset="95%" stopColor={entry.fill} stopOpacity={0.6}/>
+                  </linearGradient>
+                ))}
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" stroke="#e4e4e7" vertical={false} />
               <XAxis
                 dataKey="status"
-                tick={{ fontSize: 10, fill: "#94a3b8" }}
+                tick={{ fontSize: 10, fill: "#71717a" }}
                 tickLine={false}
                 axisLine={false}
                 angle={-35}
                 textAnchor="end"
                 height={60}
               />
-              <YAxis tick={{ fontSize: 10, fill: "#94a3b8" }} tickLine={false} axisLine={false} allowDecimals={false} />
-              <Tooltip content={<BarTooltip />} cursor={{ fill: "#f1f5f9", radius: 6 }} />
-              <Bar dataKey="count" radius={[8, 8, 0, 0]}>
+              <YAxis tick={{ fontSize: 10, fill: "#71717a" }} tickLine={false} axisLine={false} allowDecimals={false} />
+              <Tooltip content={<BarTooltip />} cursor={{ fill: "#f4f4f5", radius: 6 }} />
+              <Bar dataKey="count" radius={[6, 6, 0, 0]}>
                 {data.map((entry, i) => (
-                  <Cell key={`bar-${i}`} fill={entry.fill} />
+                  <Cell key={`bar-${i}`} fill={`url(#colorUv-${i})`} />
                 ))}
               </Bar>
             </BarChart>
