@@ -10,6 +10,17 @@ export type StatusType =
   | "Transferência BR-China"
   | "Fiscalização Aduaneira";
 
+export const ALL_STATUSES: StatusType[] = [
+  "Em Trânsito",
+  "Importação Autorizada",
+  "Taxado",
+  "Liberado",
+  "Devolvido",
+  "Perdido",
+  "Transferência BR-China",
+  "Fiscalização Aduaneira",
+];
+
 export interface Package {
   id: string;
   tracking_code: string;

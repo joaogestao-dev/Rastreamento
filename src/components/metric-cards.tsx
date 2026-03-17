@@ -15,27 +15,26 @@ export function MetricCards({ metrics }: MetricCardsProps) {
         return (
           <Card
             key={metric.label}
-            className="group relative overflow-hidden border-slate-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md"
+            className="group relative overflow-hidden border-white/20 bg-white/80 shadow-sm backdrop-blur-md transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
           >
             <CardContent className="p-5">
               <div className="flex items-start justify-between">
-                <div className="space-y-2">
-                  <p className="text-xs font-medium uppercase tracking-wider text-slate-500">
+                <div className="space-y-1.5">
+                  <p className="text-[11px] font-semibold uppercase tracking-widest text-slate-400">
                     {metric.label}
                   </p>
-                  <p className="text-3xl font-bold tracking-tight text-slate-900">
+                  <p className="text-3xl font-extrabold tracking-tight text-slate-900">
                     {metric.value}
                   </p>
                 </div>
                 <div
-                  className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${metric.bgColor} transition-transform duration-300 group-hover:scale-110`}
+                  className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl ${metric.bgColor} transition-transform duration-300 group-hover:scale-110`}
                 >
                   <Icon className={`h-5 w-5 ${metric.color}`} />
                 </div>
               </div>
-              {/* Subtle bottom accent bar */}
               <div
-                className={`absolute bottom-0 left-0 h-0.5 w-full opacity-0 transition-opacity duration-300 group-hover:opacity-100 ${metric.bgColor}`}
+                className={`absolute bottom-0 left-0 h-0.5 w-full ${metric.color.replace("text-", "bg-")} opacity-0 transition-opacity duration-300 group-hover:opacity-60`}
               />
             </CardContent>
           </Card>
