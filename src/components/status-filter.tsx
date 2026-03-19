@@ -7,29 +7,29 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ALL_STATUSES, StatusType } from "@/lib/types";
-import { statusStyles } from "@/lib/mock-data";
+import { getStatusStyle } from "@/lib/mock-data";
 import { Filter } from "lucide-react";
 
 interface StatusFilterProps {
-  value: StatusType | "all";
-  onChange: (value: StatusType | "all") => void;
+  value: string;
+  onChange: (value: string) => void;
+  statuses: string[];
 }
 
-export function StatusFilter({ value, onChange }: StatusFilterProps) {
+export function StatusFilter({ value, onChange, statuses }: StatusFilterProps) {
   return (
     <div className="flex items-center gap-2">
-      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-slate-100">
-        <Filter className="h-4 w-4 text-slate-500" />
+      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-accent">
+        <Filter className="h-4 w-4 text-muted-foreground" />
       </div>
-      <Select value={value} onValueChange={(v) => onChange(v as StatusType | "all")}>
-        <SelectTrigger className="h-9 w-[220px] border-slate-200 bg-white text-sm">
+      <Select value={value} onValueChange={(v) => onChange(v ?? "all")}>
+        <SelectTrigger className="h-9 w-[220px] text-sm">
           <SelectValue placeholder="Filtrar por status" />
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="all">Todos os Status</SelectItem>
-          {ALL_STATUSES.map((status) => {
-            const style = statusStyles[status];
+          {statuses.map((status) => {
+            const style = getStatusStyle(status);
             return (
               <SelectItem key={status} value={status}>
                 <span className="flex items-center gap-2">

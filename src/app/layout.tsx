@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Sidebar } from "@/components/sidebar";
 import { PackageProvider } from "@/lib/data-store";
+import { getPackages } from "@/app/actions/tracking";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -15,29 +16,26 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Rastreamento Logístico — Dashboard",
+  title: "TrackFlow — Rastreamento Logístico",
   description:
-    "Sistema de gestão e rastreamento logístico com monitoramento de pacotes em tempo real",
+    "Plataforma de gestão e rastreamento logístico com monitoramento de pacotes em tempo real",
 };
-
-import { getPackages } from "@/app/actions/tracking";
 
 export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  // Pre-fetch no lado do servidor para UI mais rápida
   const initialPackages = await getPackages();
 
   return (
-    <html lang="pt-BR">
+    <html lang="pt-BR" className="dark">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased`}
       >
         <PackageProvider initialData={initialPackages}>
           <Sidebar />
-          <main className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 lg:pl-64">
+          <main className="min-h-screen bg-background lg:pl-64">
             <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
               {children}
             </div>

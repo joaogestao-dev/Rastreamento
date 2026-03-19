@@ -6,40 +6,50 @@ import { revalidatePath } from "next/cache";
 
 // 1. Fetch Packages (Read)
 export async function getPackages(): Promise<Package[]> {
-  const supabase = await createAdminClient();
-  
-  // Usando a admin key para bypassar RLS em leitura geral para MVP. 
-  // Em prod, use `createClient()` se prender por user_id.
-  const { data, error } = await supabase
-    .from("packages")
-    .select("*")
-    .order("last_update", { ascending: false });
+  try {
+    const supabase = createAdminClient();
 
-  if (error || !data) {
-    console.error("Error fetching packages:", error);
+    const { data, error } = await supabase
+      .from("packages")
+      .select("*")
+      .order("last_update", { ascending: false });
+
+    if (error) {
+      console.error("🔴 [GET] Supabase error:", error.message, error.code);
+      return [];
+    }
+
+    return (data || []).map((row) => ({
+      id: row.id,
+      tracking_code: row.tracking_code,
+      order_id: row.order_id || "",
+      current_status: row.current_status as StatusType,
+      last_update: row.last_update,
+      description: row.description || "",
+    }));
+  } catch (err) {
+    console.error("🔴 [GET] Exception:", err);
     return [];
   }
-
-  return data.map((row) => ({
-    id: row.id,
-    tracking_code: row.tracking_code,
-    order_id: row.order_id || "",
-    current_status: row.current_status as StatusType,
-    last_update: row.last_update,
-    description: row.description || "",
-  }));
 }
 
-// 2. Upsert Packages from CSV (Write)
+// 2. Upsert Packages from CSV or Webhook (Write)
 export async function importCsvPackages(packages: Package[]) {
-  const supabase = await createAdminClient();
+  const supabase = createAdminClient();
   let successCount = 0;
   let errorCount = 0;
 
-  // Em um cenário de produção real em massa, melhor usar RPC (Stored Function)
-  // Para MVP seguro, iteramos os pacotes.
   for (const pkg of packages) {
-    // A. Upsert o Meta-dado do Pacote
+    // Garantir que last_update seja um timestamp válido
+    let lastUpdate = pkg.last_update;
+    if (!lastUpdate || lastUpdate.trim() === "") {
+      lastUpdate = new Date().toISOString();
+    } else if (/^\d{4}-\d{2}-\d{2}$/.test(lastUpdate)) {
+      // Se for só data (YYYY-MM-DD), adicionar hora
+      lastUpdate = `${lastUpdate}T00:00:00.000Z`;
+    }
+
+    // A. Upsert pacote
     const { data: packageRow, error: pkgError } = await supabase
       .from("packages")
       .upsert(
@@ -47,8 +57,8 @@ export async function importCsvPackages(packages: Package[]) {
           tracking_code: pkg.tracking_code,
           order_id: pkg.order_id || null,
           current_status: pkg.current_status,
-          last_update: pkg.last_update,
-          description: pkg.description,
+          last_update: lastUpdate,
+          description: pkg.description || null,
         },
         { onConflict: "tracking_code" }
       )
@@ -56,31 +66,29 @@ export async function importCsvPackages(packages: Package[]) {
       .single();
 
     if (pkgError || !packageRow) {
-      console.error("Error upserting package", pkgError);
+      console.error("🔴 [UPSERT]", pkgError?.message, "→", pkg.tracking_code);
       errorCount++;
       continue;
     }
 
-    // B. Insert Histórico de Eventos (Ignorando se a tripla já existe)
+    // B. Insert evento (ignorar duplicatas via unique constraint)
     const { error: eventError } = await supabase
       .from("tracking_events")
       .insert({
         package_id: packageRow.id,
         status: pkg.current_status,
-        description: pkg.description,
-        event_date: pkg.last_update,
+        description: pkg.description || "Atualização de status",
+        event_date: lastUpdate,
       });
 
-    // Se violou unique (já existia), tudo bem, apenas pulamos
-    // Se não for "violou unique" (23505), deu erro
     if (eventError && eventError.code !== "23505") {
-      console.error("Error inserting event", eventError);
+      console.error("🔴 [EVENT]", eventError.message);
     }
-    
+
     successCount++;
   }
 
-  // C. Re-validar as rotas para o App Router baixar dados frescos
+  // Revalidar cache do Next.js
   revalidatePath("/");
   revalidatePath("/pedidos");
 

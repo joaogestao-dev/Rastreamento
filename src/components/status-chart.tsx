@@ -24,11 +24,11 @@ interface StatusChartProps {
 function BarTooltip({ active, payload, label }: any) {
   if (active && payload?.length) {
     return (
-      <div className="rounded-xl border border-white/30 bg-white/90 px-4 py-3 shadow-xl backdrop-blur-md">
-        <p className="text-xs font-medium text-slate-500">{label}</p>
-        <p className="text-xl font-bold text-slate-900">
+      <div className="rounded-xl border border-border bg-card px-4 py-3 shadow-xl">
+        <p className="text-xs font-medium text-muted-foreground">{label}</p>
+        <p className="text-xl font-bold text-foreground">
           {payload[0].value}
-          <span className="ml-1 text-xs font-normal text-slate-400">pacotes</span>
+          <span className="ml-1 text-xs font-normal text-muted-foreground">pacotes</span>
         </p>
       </div>
     );
@@ -39,11 +39,11 @@ function BarTooltip({ active, payload, label }: any) {
 function PieTooltip({ active, payload }: any) {
   if (active && payload?.length) {
     return (
-      <div className="rounded-xl border border-white/30 bg-white/90 px-4 py-3 shadow-xl backdrop-blur-md">
-        <p className="text-xs font-medium text-slate-500">{payload[0].name}</p>
-        <p className="text-xl font-bold text-slate-900">
+      <div className="rounded-xl border border-border bg-card px-4 py-3 shadow-xl">
+        <p className="text-xs font-medium text-muted-foreground">{payload[0].name}</p>
+        <p className="text-xl font-bold text-foreground">
           {payload[0].value}
-          <span className="ml-1 text-xs font-normal text-slate-400">pacotes</span>
+          <span className="ml-1 text-xs font-normal text-muted-foreground">pacotes</span>
         </p>
       </div>
     );
@@ -66,13 +66,13 @@ function renderCustomLabel({ cx, cy, midAngle, innerRadius, outerRadius, percent
 
 export function StatusBarChart({ data }: StatusChartProps) {
   return (
-    <Card className="border-zinc-200/60 bg-white/70 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.03)] backdrop-blur-xl">
+    <Card className="border-border bg-card">
       <CardHeader className="pb-2">
         <div className="flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-zinc-100">
-            <BarChart3 className="h-4 w-4 text-zinc-600" />
+          <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-accent">
+            <BarChart3 className="h-4 w-4 text-muted-foreground" />
           </div>
-          <CardTitle className="text-sm font-semibold text-zinc-900">
+          <CardTitle className="text-sm font-semibold text-foreground">
             Distribuição por Status
           </CardTitle>
         </div>
@@ -85,24 +85,24 @@ export function StatusBarChart({ data }: StatusChartProps) {
                 {data.map((entry, index) => (
                   <linearGradient key={`grad-${index}`} id={`colorUv-${index}`} x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor={entry.fill} stopOpacity={1}/>
-                    <stop offset="95%" stopColor={entry.fill} stopOpacity={0.6}/>
+                    <stop offset="95%" stopColor={entry.fill} stopOpacity={0.4}/>
                   </linearGradient>
                 ))}
               </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="#e4e4e7" vertical={false} />
+              <CartesianGrid strokeDasharray="3 3" stroke="#2a2a35" vertical={false} />
               <XAxis
                 dataKey="status"
-                tick={{ fontSize: 10, fill: "#71717a" }}
+                tick={{ fontSize: 10, fill: "#9ca3af" }}
                 tickLine={false}
                 axisLine={false}
                 angle={-35}
                 textAnchor="end"
                 height={60}
               />
-              <YAxis tick={{ fontSize: 10, fill: "#71717a" }} tickLine={false} axisLine={false} allowDecimals={false} />
-              <Tooltip content={<BarTooltip />} cursor={{ fill: "#f4f4f5", radius: 6 }} />
+              <YAxis tick={{ fontSize: 10, fill: "#9ca3af" }} tickLine={false} axisLine={false} allowDecimals={false} />
+              <Tooltip content={<BarTooltip />} cursor={{ fill: "#1f1f2e", radius: 6 }} />
               <Bar dataKey="count" radius={[6, 6, 0, 0]}>
-                {data.map((entry, i) => (
+                {data.map((_, i) => (
                   <Cell key={`bar-${i}`} fill={`url(#colorUv-${i})`} />
                 ))}
               </Bar>
@@ -116,13 +116,13 @@ export function StatusBarChart({ data }: StatusChartProps) {
 
 export function StatusPieChart({ data }: StatusChartProps) {
   return (
-    <Card className="border-white/20 bg-white/80 shadow-sm backdrop-blur-md">
+    <Card className="border-border bg-card">
       <CardHeader className="pb-2">
         <div className="flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-slate-100">
-            <PieChartIcon className="h-4 w-4 text-slate-600" />
+          <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-accent">
+            <PieChartIcon className="h-4 w-4 text-muted-foreground" />
           </div>
-          <CardTitle className="text-sm font-semibold text-slate-900">
+          <CardTitle className="text-sm font-semibold text-foreground">
             Proporção de Status
           </CardTitle>
         </div>
@@ -141,7 +141,7 @@ export function StatusPieChart({ data }: StatusChartProps) {
                 labelLine={false}
                 label={renderCustomLabel}
                 strokeWidth={2}
-                stroke="#fff"
+                stroke="#141420"
               >
                 {data.map((entry, i) => (
                   <Cell key={`pie-${i}`} fill={entry.fill} />
@@ -155,7 +155,7 @@ export function StatusPieChart({ data }: StatusChartProps) {
           {data.map((item) => (
             <div key={item.status} className="flex items-center gap-1.5">
               <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: item.fill }} />
-              <span className="text-[11px] text-slate-500">{item.status}</span>
+              <span className="text-[11px] text-gray-400">{item.status}</span>
             </div>
           ))}
         </div>

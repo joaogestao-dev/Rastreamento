@@ -1,25 +1,7 @@
 import type { LucideIcon } from "lucide-react";
 
-export type StatusType =
-  | "Importação Autorizada"
-  | "Em Trânsito"
-  | "Taxado"
-  | "Liberado"
-  | "Devolvido"
-  | "Perdido"
-  | "Transferência BR-China"
-  | "Fiscalização Aduaneira";
-
-export const ALL_STATUSES: StatusType[] = [
-  "Em Trânsito",
-  "Importação Autorizada",
-  "Taxado",
-  "Liberado",
-  "Devolvido",
-  "Perdido",
-  "Transferência BR-China",
-  "Fiscalização Aduaneira",
-];
+// Status é dinâmico — qualquer string. Novas categorias são criadas automaticamente.
+export type StatusType = string;
 
 export interface Package {
   id: string;
@@ -42,4 +24,10 @@ export interface ChartDataItem {
   status: string;
   count: number;
   fill: string;
+}
+
+export interface StatusCategory {
+  name: string;
+  color: string;
+  sort_order: number;
 }
