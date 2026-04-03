@@ -156,43 +156,14 @@ async function syncShopify(): Promise<{
 }> {
   const config = await getIntegrationConfig("Shopify");
 
-  if (!config?.domain || !config?.client_id || !config?.client_secret) {
-    return { success: false, message: "Credenciais Shopify incompletas (domínio, client_id e client_secret)." };
+  if (!config?.domain || !config?.access_token) {
+    return { success: false, message: "Preencha o domínio e o Admin API Access Token da Shopify." };
   }
 
   const domain = config.domain.replace(/^https?:\/\//, "").replace(/\/$/, "");
+  const accessToken = config.access_token;
 
-  // 1. Obter access token via Client Credentials
-  let accessToken: string;
-  try {
-    const tokenRes = await fetch(`https://${domain}/admin/oauth/access_token`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        grant_type: "client_credentials",
-        client_id: config.client_id,
-        client_secret: config.client_secret,
-      }),
-      signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
-    });
-
-    if (!tokenRes.ok) {
-      const errText = await tokenRes.text();
-      return { success: false, message: `Erro na autenticação Shopify: ${tokenRes.status} — ${errText}` };
-    }
-
-    const tokenData = await tokenRes.json();
-    accessToken = tokenData.access_token;
-
-    if (!accessToken) {
-      return { success: false, message: "Shopify não retornou access_token." };
-    }
-  } catch (err) {
-    const msg = err instanceof Error ? err.message : "Erro desconhecido";
-    return { success: false, message: `Falha ao conectar com Shopify: ${msg}` };
-  }
-
-  // 2. Buscar pedidos com fulfillments
+  // Buscar pedidos com fulfillments
   try {
     const ordersRes = await fetch(
       `https://${domain}/admin/api/2026-01/orders.json?status=any&fulfillment_status=shipped&limit=250`,
