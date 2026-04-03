@@ -9,41 +9,47 @@ export async function GET() {
   try {
     const supabase = createAdminClient();
 
-    // Buscar últimos 20 logs
-    const { data: logs, error: logsError } = await supabase
-      .from("import_logs")
-      .select("*")
-      .order("created_at", { ascending: false })
-      .limit(20);
+    // Buscar últimos 20 logs (graceful — retorna [] se falhar)
+    let logs: Record<string, unknown>[] = [];
+    let integrations: Record<string, unknown>[] = [];
 
-    if (logsError) {
-      console.error("🔴 [LOGS] Erro:", logsError.message);
-      return NextResponse.json(
-        { success: false, error: "Erro ao buscar logs." },
-        { status: 500 }
-      );
+    try {
+      const { data, error } = await supabase
+        .from("import_logs")
+        .select("*")
+        .order("created_at", { ascending: false })
+        .limit(20);
+
+      if (!error && data) logs = data;
+      else if (error) console.warn("⚠️ [LOGS] Supabase:", error.message);
+    } catch {
+      console.warn("⚠️ [LOGS] Supabase offline — retornando vazio");
     }
 
-    // Buscar status das integrações
-    const { data: integrations, error: intError } = await supabase
-      .from("integrations")
-      .select("*")
-      .order("name");
+    try {
+      const { data, error } = await supabase
+        .from("integrations")
+        .select("*")
+        .order("name");
 
-    if (intError) {
-      console.error("🔴 [INTEGRATIONS] Erro:", intError.message);
+      if (!error && data) integrations = data;
+      else if (error) console.warn("⚠️ [INTEGRATIONS] Supabase:", error.message);
+    } catch {
+      console.warn("⚠️ [INTEGRATIONS] Supabase offline — retornando vazio");
     }
 
     return NextResponse.json({
       success: true,
-      logs: logs || [],
-      integrations: integrations || [],
+      logs,
+      integrations,
     });
   } catch (error: unknown) {
-    const msg = error instanceof Error ? error.message : "Erro desconhecido";
-    return NextResponse.json(
-      { success: false, error: msg },
-      { status: 500 }
-    );
+    // Fallback total — nunca retorna 500
+    console.error("🔴 [LOGS] Erro crítico:", error);
+    return NextResponse.json({
+      success: true,
+      logs: [],
+      integrations: [],
+    });
   }
 }

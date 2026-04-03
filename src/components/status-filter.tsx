@@ -19,11 +19,11 @@ interface StatusFilterProps {
 export function StatusFilter({ value, onChange, statuses }: StatusFilterProps) {
   return (
     <div className="flex items-center gap-2">
-      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-accent">
+      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white/[0.06] border border-white/[0.05]">
         <Filter className="h-4 w-4 text-muted-foreground" />
       </div>
       <Select value={value} onValueChange={(v) => onChange(v ?? "all")}>
-        <SelectTrigger className="h-9 w-[220px] text-sm">
+        <SelectTrigger className="h-9 w-[220px] text-sm border-white/[0.08] bg-white/[0.03]">
           <SelectValue placeholder="Filtrar por status" />
         </SelectTrigger>
         <SelectContent>

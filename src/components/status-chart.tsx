@@ -24,7 +24,7 @@ interface StatusChartProps {
 function BarTooltip({ active, payload, label }: any) {
   if (active && payload?.length) {
     return (
-      <div className="rounded-xl border border-border bg-card px-4 py-3 shadow-xl">
+      <div className="glass rounded-xl px-4 py-3">
         <p className="text-xs font-medium text-muted-foreground">{label}</p>
         <p className="text-xl font-bold text-foreground">
           {payload[0].value}
@@ -39,7 +39,7 @@ function BarTooltip({ active, payload, label }: any) {
 function PieTooltip({ active, payload }: any) {
   if (active && payload?.length) {
     return (
-      <div className="rounded-xl border border-border bg-card px-4 py-3 shadow-xl">
+      <div className="glass rounded-xl px-4 py-3">
         <p className="text-xs font-medium text-muted-foreground">{payload[0].name}</p>
         <p className="text-xl font-bold text-foreground">
           {payload[0].value}
@@ -66,10 +66,10 @@ function renderCustomLabel({ cx, cy, midAngle, innerRadius, outerRadius, percent
 
 export function StatusBarChart({ data }: StatusChartProps) {
   return (
-    <Card className="border-border bg-card">
+    <Card className="glass rounded-2xl border-0">
       <CardHeader className="pb-2">
         <div className="flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-accent">
+          <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-white/[0.06] border border-white/[0.05]">
             <BarChart3 className="h-4 w-4 text-muted-foreground" />
           </div>
           <CardTitle className="text-sm font-semibold text-foreground">
@@ -116,10 +116,10 @@ export function StatusBarChart({ data }: StatusChartProps) {
 
 export function StatusPieChart({ data }: StatusChartProps) {
   return (
-    <Card className="border-border bg-card">
+    <Card className="glass rounded-2xl border-0">
       <CardHeader className="pb-2">
         <div className="flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-accent">
+          <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-white/[0.06] border border-white/[0.05]">
             <PieChartIcon className="h-4 w-4 text-muted-foreground" />
           </div>
           <CardTitle className="text-sm font-semibold text-foreground">

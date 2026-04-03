@@ -15,7 +15,7 @@ export function MetricCards({ metrics }: MetricCardsProps) {
         return (
           <Card
             key={metric.label}
-            className="group relative cursor-default overflow-hidden border-border bg-card transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-black/5"
+            className="group relative cursor-default overflow-hidden glass rounded-2xl transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-black/10"
           >
             <CardContent className="p-5">
               <div className="flex items-start justify-between">
@@ -28,7 +28,7 @@ export function MetricCards({ metrics }: MetricCardsProps) {
                   </p>
                 </div>
                 <div
-                  className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-accent transition-transform duration-500 group-hover:scale-105"
+                  className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white/[0.06] border border-white/[0.05] transition-transform duration-500 group-hover:scale-105"
                 >
                   <Icon className={`h-5 w-5 ${metric.color}`} strokeWidth={2.5} />
                 </div>

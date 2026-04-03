@@ -54,7 +54,7 @@ export function CsvActions() {
         variant="outline"
         size="sm"
         disabled={isImporting}
-        className="h-9 gap-2 text-sm"
+        className="h-9 gap-2 text-sm border-white/[0.08] hover:bg-white/[0.05]"
         onClick={() => fileRef.current?.click()}
       >
         {isImporting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
@@ -70,7 +70,7 @@ export function CsvActions() {
       <Button
         variant="outline"
         size="sm"
-        className="h-9 gap-2 text-sm"
+        className="h-9 gap-2 text-sm border-white/[0.08] hover:bg-white/[0.05]"
         onClick={() => exportCSV(packages)}
       >
         <Download className="h-4 w-4" />

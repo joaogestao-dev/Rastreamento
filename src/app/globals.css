@@ -83,37 +83,139 @@
 }
 
 .dark {
-  --background: oklch(0.1 0.005 285);
-  --foreground: oklch(0.93 0 0);
-  --card: oklch(0.155 0.005 285);
-  --card-foreground: oklch(0.93 0 0);
-  --popover: oklch(0.155 0.005 285);
-  --popover-foreground: oklch(0.93 0 0);
-  --primary: oklch(0.65 0.2 265);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.2 0.005 285);
-  --secondary-foreground: oklch(0.9 0 0);
-  --muted: oklch(0.2 0.005 285);
-  --muted-foreground: oklch(0.6 0 0);
-  --accent: oklch(0.22 0.01 285);
-  --accent-foreground: oklch(0.93 0 0);
+  /* ── Glassmorphism-tuned dark palette ── */
+  --background: oklch(0.075 0.015 280);
+  --foreground: oklch(0.95 0 0);
+  --card: oklch(0.12 0.01 280);
+  --card-foreground: oklch(0.95 0 0);
+  --popover: oklch(0.11 0.015 280);
+  --popover-foreground: oklch(0.95 0 0);
+  --primary: oklch(0.65 0.22 270);
+  --primary-foreground: oklch(0.99 0 0);
+  --secondary: oklch(0.16 0.01 280);
+  --secondary-foreground: oklch(0.92 0 0);
+  --muted: oklch(0.16 0.01 280);
+  --muted-foreground: oklch(0.6 0.005 280);
+  --accent: oklch(0.18 0.015 280);
+  --accent-foreground: oklch(0.95 0 0);
   --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(0.25 0.005 285);
-  --input: oklch(0.22 0.005 285);
-  --ring: oklch(0.65 0.2 265);
-  --chart-1: oklch(0.65 0.2 265);
-  --chart-2: oklch(0.6 0.2 145);
+  --border: oklch(0.22 0.01 280);
+  --input: oklch(0.16 0.01 280);
+  --ring: oklch(0.65 0.22 270);
+  --chart-1: oklch(0.65 0.22 270);
+  --chart-2: oklch(0.6 0.2 155);
   --chart-3: oklch(0.7 0.15 50);
   --chart-4: oklch(0.65 0.18 330);
   --chart-5: oklch(0.55 0.2 200);
-  --sidebar: oklch(0.12 0.005 285);
-  --sidebar-foreground: oklch(0.93 0 0);
-  --sidebar-primary: oklch(0.65 0.2 265);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.2 0.01 285);
-  --sidebar-accent-foreground: oklch(0.93 0 0);
-  --sidebar-border: oklch(0.25 0.005 285);
-  --sidebar-ring: oklch(0.65 0.2 265);
+  --sidebar: oklch(0.09 0.015 280);
+  --sidebar-foreground: oklch(0.95 0 0);
+  --sidebar-primary: oklch(0.65 0.22 270);
+  --sidebar-primary-foreground: oklch(0.99 0 0);
+  --sidebar-accent: oklch(0.16 0.015 280);
+  --sidebar-accent-foreground: oklch(0.95 0 0);
+  --sidebar-border: oklch(0.2 0.01 280);
+  --sidebar-ring: oklch(0.65 0.22 270);
+
+  /* ── Glass Design Tokens ── */
+  --glass-bg: rgba(255, 255, 255, 0.04);
+  --glass-bg-hover: rgba(255, 255, 255, 0.07);
+  --glass-bg-elevated: rgba(255, 255, 255, 0.08);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-border-strong: rgba(255, 255, 255, 0.12);
+  --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.2);
+  --glass-shadow-lg: 0 16px 48px 0 rgba(31, 38, 135, 0.3);
+}
+
+/* ── Glassmorphism Utility Classes ── */
+.glass {
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+}
+
+.glass-elevated {
+  background: var(--glass-bg-elevated);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid var(--glass-border-strong);
+  box-shadow: var(--glass-shadow-lg);
+}
+
+.glass-subtle {
+  background: rgba(255, 255, 255, 0.02);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* ── Background Orbs ── */
+.bg-orb {
+  position: fixed;
+  border-radius: 50%;
+  filter: blur(120px);
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.35;
+  will-change: transform;
+}
+
+.bg-orb-1 {
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, oklch(0.45 0.2 270) 0%, transparent 70%);
+  top: -10%;
+  left: -5%;
+  animation: orb-drift-1 20s ease-in-out infinite;
+}
+
+.bg-orb-2 {
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, oklch(0.4 0.18 230) 0%, transparent 70%);
+  top: 40%;
+  right: -8%;
+  animation: orb-drift-2 25s ease-in-out infinite;
+}
+
+.bg-orb-3 {
+  width: 450px;
+  height: 450px;
+  background: radial-gradient(circle, oklch(0.4 0.15 190) 0%, transparent 70%);
+  bottom: -5%;
+  left: 30%;
+  animation: orb-drift-3 22s ease-in-out infinite;
+}
+
+@keyframes orb-drift-1 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(40px, 30px) scale(1.05); }
+  66% { transform: translate(-20px, 50px) scale(0.97); }
+}
+
+@keyframes orb-drift-2 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(-30px, -40px) scale(1.03); }
+  66% { transform: translate(25px, -20px) scale(0.98); }
+}
+
+@keyframes orb-drift-3 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(20px, -35px) scale(1.04); }
+  66% { transform: translate(-35px, 15px) scale(0.96); }
+}
+
+/* ── Mesh gradient backdrop ── */
+.mesh-gradient {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse at 20% 50%, rgba(120, 80, 255, 0.08) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 20%, rgba(60, 130, 255, 0.06) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 80%, rgba(0, 200, 200, 0.05) 0%, transparent 50%);
 }
 
 @layer base {

@@ -34,8 +34,14 @@ export default async function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased`}
       >
         <PackageProvider initialData={initialPackages}>
+          {/* Glassmorphism Background Layer */}
+          <div className="mesh-gradient" aria-hidden="true" />
+          <div className="bg-orb bg-orb-1" aria-hidden="true" />
+          <div className="bg-orb bg-orb-2" aria-hidden="true" />
+          <div className="bg-orb bg-orb-3" aria-hidden="true" />
+
           <Sidebar />
-          <main className="min-h-screen bg-background lg:pl-64">
+          <main className="relative z-10 min-h-screen lg:pl-64">
             <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
               {children}
             </div>

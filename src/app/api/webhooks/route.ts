@@ -1,41 +1,9 @@
 import { NextResponse } from "next/server";
-import { Package, StatusType } from "@/lib/types";
+import { Package } from "@/lib/types";
 import { importCsvPackages } from "@/app/actions/tracking";
 import { createAdminClient } from "@/utils/supabase/server";
-
-// ──────────────────────────────────────────────────
-// STATUS DICTIONARY — Tradução de status externos → internos
-// ──────────────────────────────────────────────────
-const statusDictionary: Record<string, StatusType> = {
-  // Inglês (APIs internacionais)
-  "in_transit": "Em Trânsito",
-  "delivered": "Entregue",
-  "delivered_to_sender": "Devolvido",
-  "exception": "Perdido",
-  "customs_hold": "Fiscalização",
-  "customs_cleared": "Liberado",
-  "customs_taxed": "Taxados",
-  "arrived_at_destination_country": "Transferências: BR e China",
-  "info_received": "Importação Autorizada",
-  // Português (Reportana / Unicodrop / Correios)
-  "em trânsito": "Em Trânsito",
-  "entregue": "Entregue",
-  "devolvido": "Devolvido",
-  "perdido": "Perdido",
-  "extraviado": "Perdido",
-  "fiscalização": "Fiscalização",
-  "fiscalização aduaneira": "Fiscalização",
-  "liberado": "Liberado",
-  "taxado": "Taxados",
-  "aguardando pagamento": "Taxados",
-  "transferência": "Transferências: BR e China",
-  "autorizada": "Importação Autorizada",
-  "postado": "Postado",
-  "retido": "Retido",
-  "importação autorizada": "Importação Autorizada",
-  "pagamento confirmado": "Pagamento Confirmado",
-  "devolução determinada": "Devolução Determinada",
-};
+import { mapStatus } from "@/lib/status-dictionary";
+import { validateWebhookToken, extractSource } from "@/lib/webhook-security";
 
 // ──────────────────────────────────────────────────
 // PAYLOAD INTERFACE — Aceita vários formatos de webhook
@@ -62,61 +30,23 @@ interface WebhookPayload {
 }
 
 // ──────────────────────────────────────────────────
-// VALIDAÇÃO DE TOKEN — Aceita x-webhook-secret, x-api-key, Authorization
-// ──────────────────────────────────────────────────
-function validateToken(req: Request): boolean {
-  const EXPECTED = process.env.WEBHOOK_SECRET || "vibecode-secret-123";
-
-  const secret = req.headers.get("x-webhook-secret");
-  const apiKey = req.headers.get("x-api-key");
-  const authHeader = req.headers.get("authorization");
-  const bearer = authHeader?.replace("Bearer ", "");
-
-  // Também aceitar token via query string (?token=xxx)
-  const url = new URL(req.url);
-  const queryToken = url.searchParams.get("token");
-
-  return (
-    secret === EXPECTED ||
-    apiKey === EXPECTED ||
-    bearer === EXPECTED ||
-    queryToken === EXPECTED
-  );
-}
-
-// ──────────────────────────────────────────────────
-// EXTRAIR SOURCE — reportana, unicodrop, ou genérico
-// ──────────────────────────────────────────────────
-function extractSource(req: Request): string {
-  const url = new URL(req.url);
-  const source = url.searchParams.get("source");
-  if (source) return `webhook_${source.toLowerCase()}`;
-
-  const ua = req.headers.get("user-agent") || "";
-  if (ua.toLowerCase().includes("reportana")) return "webhook_reportana";
-  if (ua.toLowerCase().includes("unicodrop")) return "webhook_unicodrop";
-
-  return "webhook";
-}
-
-// ──────────────────────────────────────────────────
 // NORMALIZAR PAYLOAD → Package[]
 // ──────────────────────────────────────────────────
 function normalizePayload(body: WebhookPayload | WebhookPayload[]): Package[] {
   const items = Array.isArray(body) ? body : [body];
 
   return items
-    .map((item) => {
+    .map((item, i) => {
       const trackingCode = item.tracking_code || item.tracking_number || item.rastreio || item.codigo;
       if (!trackingCode) return null;
 
-      const rawStatus = (item.status || item.evento || item.event || "in_transit").toLowerCase().trim();
-      const mappedStatus: StatusType = statusDictionary[rawStatus] || "Em Trânsito";
+      const rawStatus = item.status || item.evento || item.event || "in_transit";
+      const mappedStatus = mapStatus(rawStatus);
 
       const lastUpdate = item.event_date || item.date || item.data || new Date().toISOString();
 
       return {
-        id: "wh-" + Date.now(),
+        id: `wh-${Date.now()}-${i}`,
         tracking_code: trackingCode.trim(),
         order_id: (item.order_id || item.pedido || "").trim(),
         current_status: mappedStatus,
@@ -128,53 +58,55 @@ function normalizePayload(body: WebhookPayload | WebhookPayload[]): Package[] {
 }
 
 // ──────────────────────────────────────────────────
-// LOG NO BANCO — Registra em import_logs + atualiza integrations
+// LOG NO BANCO — Fire-and-forget (não bloqueia response)
 // ──────────────────────────────────────────────────
-async function logWebhookEvent(
+function logWebhookEvent(
   source: string,
   totalRows: number,
   successCount: number,
   errorCount: number,
   errors: string[] = []
 ) {
-  try {
-    const supabase = createAdminClient();
+  // Fire-and-forget — não retorna Promise para não bloquear
+  (async () => {
+    try {
+      const supabase = createAdminClient();
 
-    // 1. Registrar log
-    await supabase.from("import_logs").insert({
-      source,
-      total_rows: totalRows,
-      success_count: successCount,
-      error_count: errorCount,
-      errors: JSON.stringify(errors),
-    });
-
-    // 2. Atualizar integração correspondente
-    const integrationName =
-      source === "webhook_reportana" ? "Webhook Reportana" :
-      source === "webhook_unicodrop" ? "Webhook Unicodrop" :
-      "API de Rastreamento";
-
-    await supabase
-      .from("integrations")
-      .update({
-        is_active: true,
-        last_sync: new Date().toISOString(),
+      await supabase.from("import_logs").insert({
+        source,
+        total_rows: totalRows,
+        success_count: successCount,
         error_count: errorCount,
-      })
-      .eq("name", integrationName);
-  } catch (err) {
-    console.error("⚠️ [LOG] Falha ao registrar log:", err);
-  }
+        errors: JSON.stringify(errors),
+      });
+
+      const integrationName =
+        source === "webhook_reportana" ? "Reportana" :
+        source === "webhook_unicodrop" ? "Unicodrop" :
+        "Shopify";
+
+      await supabase
+        .from("integrations")
+        .update({
+          is_active: true,
+          last_sync: new Date().toISOString(),
+          error_count: errorCount,
+        })
+        .eq("name", integrationName);
+    } catch (err) {
+      console.error("⚠️ [LOG] Falha ao registrar log:", err);
+    }
+  })();
 }
 
 // ──────────────────────────────────────────────────
 // POST /api/webhooks — Endpoint principal
+// Pattern: Validate → Acknowledge → Process (inspirado no Stripe)
 // ──────────────────────────────────────────────────
 export async function POST(req: Request) {
   try {
-    // 1. Validar token
-    if (!validateToken(req)) {
+    // 1. Validar token (timing-safe comparison)
+    if (!validateWebhookToken(req)) {
       return NextResponse.json(
         { success: false, error: "Token inválido ou ausente." },
         { status: 401 }
@@ -195,13 +127,13 @@ export async function POST(req: Request) {
       );
     }
 
-    // 4. Upsert no banco via importCsvPackages (mesma lógica do CSV)
+    // 4. Upsert no banco (mantém síncrono pois importCsvPackages precisa do resultado)
     const result = await importCsvPackages(packages);
 
-    // 5. Registrar log no banco
-    await logWebhookEvent(source, packages.length, result.successCount, result.errorCount);
+    // 5. Log em background (fire-and-forget — não atrasa response)
+    logWebhookEvent(source, packages.length, result.successCount, result.errorCount);
 
-    // 6. Resposta
+    // 6. Resposta imediata
     return NextResponse.json({
       success: true,
       message: `${result.successCount} pacote(s) processado(s) com sucesso.`,
@@ -229,7 +161,7 @@ export async function POST(req: Request) {
 export async function GET() {
   return NextResponse.json({
     status: "online",
-    service: "TrackFlow Webhook API v1.0",
+    service: "TrackFlow Webhook API v2.0",
     timestamp: new Date().toISOString(),
     endpoints: {
       receive: "POST /api/webhooks?source=reportana|unicodrop",

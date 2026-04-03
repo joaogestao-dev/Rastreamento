@@ -149,7 +149,7 @@ ON CONFLICT (name) DO NOTHING;
 -- 9. SEED: Integrações padrão
 -- ──────────────────────────────────────────────────
 INSERT INTO public.integrations (name, type, is_active) VALUES
-  ('Webhook Reportana',  'webhook', false),
-  ('Webhook Unicodrop',  'webhook', false),
-  ('API de Rastreamento', 'api',    false)
+  ('Reportana',  'api', false),
+  ('Unicodrop',  'api', false),
+  ('Shopify',    'api', false)
 ON CONFLICT (name) DO NOTHING;

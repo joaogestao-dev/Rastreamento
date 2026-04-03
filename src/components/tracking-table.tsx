@@ -84,11 +84,11 @@ export function TrackingTable({ packages, statusFilter = "all" }: TrackingTableP
         </Badge>
       </div>
 
-      <div className="overflow-hidden rounded-2xl border border-border bg-card">
+      <div className="overflow-hidden rounded-2xl glass">
         <div className="overflow-x-auto">
           <Table>
             <TableHeader>
-              <TableRow className="border-b border-border bg-muted/50 hover:bg-muted/50">
+              <TableRow className="border-b border-white/[0.06] bg-white/[0.03] hover:bg-white/[0.03]">
                 <TableHead className="pl-6 h-10 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Rastreio</TableHead>
                 <TableHead className="h-10 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Data</TableHead>
                 <TableHead className="h-10 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Pedido</TableHead>
@@ -109,7 +109,7 @@ export function TrackingTable({ packages, statusFilter = "all" }: TrackingTableP
                   const days = diasDesde(pkg.last_update);
 
                   return (
-                    <TableRow key={pkg.id} className="border-border transition-colors hover:bg-accent/50">
+                    <TableRow key={pkg.id} className="border-white/[0.04] transition-colors hover:bg-white/[0.03]">
                       <TableCell className="pl-6 font-mono text-[13px] font-semibold text-foreground tracking-tight">
                         {pkg.tracking_code}
                       </TableCell>
@@ -141,7 +141,7 @@ export function TrackingTable({ packages, statusFilter = "all" }: TrackingTableP
           </Table>
         </div>
 
-        <div className="flex items-center justify-between border-t border-border bg-muted/30 px-6 py-3">
+        <div className="flex items-center justify-between border-t border-white/[0.06] bg-white/[0.02] px-6 py-3">
           <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
             Página {safeCurrentPage + 1} de {totalPages} · {filtered.length} pacotes
           </p>

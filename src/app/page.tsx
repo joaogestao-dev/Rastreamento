@@ -138,13 +138,13 @@ export default function DashboardPage() {
             {kpis.map((kpi, i) => {
               const Icon = KPI_ICONS[i];
               return (
-                <div key={kpi.label} className={`rounded-2xl border border-border bg-card p-5 border-l-4 ${kpi.border}`}>
+                <div key={kpi.label} className={`glass rounded-2xl p-5 border-l-4 ${kpi.border} transition-all duration-300 hover:bg-white/[0.07] hover:shadow-lg hover:shadow-black/10 hover:-translate-y-0.5`}>
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">{kpi.label}</p>
                       <p className={`mt-1 text-3xl font-extrabold tracking-tight ${kpi.color}`}>{kpi.value}</p>
                     </div>
-                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-accent">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/[0.06] border border-white/[0.05]">
                       <Icon className={`h-5 w-5 ${kpi.color}`} strokeWidth={2} />
                     </div>
                   </div>
@@ -165,10 +165,10 @@ export default function DashboardPage() {
                 const isOpen = openTier === tier;
 
                 return (
-                  <div key={tier} className="rounded-xl border border-border bg-card overflow-hidden">
+                  <div key={tier} className="glass rounded-xl overflow-hidden">
                     <button
                       onClick={() => setOpenTier(isOpen ? null : tier)}
-                      className={`flex w-full items-center justify-between px-5 py-3.5 border-l-4 ${config.borderColor} transition-colors hover:bg-accent/30`}
+                      className={`flex w-full items-center justify-between px-5 py-3.5 border-l-4 ${config.borderColor} transition-colors hover:bg-white/[0.04]`}
                     >
                       <div className="flex items-center gap-3">
                         <span className={`text-sm font-bold ${config.textColor}`}>{config.label}</span>
@@ -183,7 +183,7 @@ export default function DashboardPage() {
                     </button>
 
                     {isOpen && (
-                      <div className="border-t border-border">
+                      <div className="border-t border-white/[0.06]">
                         {items.map(({ status, count }) => {
                           const style = getStatusStyle(status);
                           const Icon = getStatusIcon(status);
@@ -194,7 +194,7 @@ export default function DashboardPage() {
                             <button
                               key={status}
                               onClick={() => handleStatusClick(status)}
-                              className="flex w-full items-center justify-between px-5 py-3 border-b border-border/50 last:border-b-0 hover:bg-accent/30 transition-colors group"
+                              className="flex w-full items-center justify-between px-5 py-3 border-b border-white/[0.04] last:border-b-0 hover:bg-white/[0.03] transition-colors group"
                             >
                               <div className="flex items-center gap-3">
                                 <div className={`flex h-7 w-7 items-center justify-center rounded-lg ${style.bg}`}>
